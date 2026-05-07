@@ -1,21 +1,19 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { sendBrevoEmail } from '../_shared/brevo.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const FROM = 'Scoly <newsletter@scoly.ci>';
+const FROM = { name: 'Scoly', email: 'newsletter@scoly.ci' };
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
-
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
 
@@ -52,16 +50,11 @@ Deno.serve(async (req) => {
           .replace(/\{\{first_name\}\}/g, r.first_name || 'cher client')
           .replace(/\{\{unsubscribe_url\}\}/g, `https://scoly.ci/unsubscribe?token=${r.unsubscribe_token || ''}`);
 
-        const resp = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: FROM, to: [r.email], subject: campaign.subject, html }),
-        });
-        const json = await resp.json();
-        if (!resp.ok) throw new Error(json.message || 'Send failed');
+        const result = await sendBrevoEmail({ from: FROM, to: r.email, subject: campaign.subject, html });
+        if (!result.ok) throw new Error('Send failed');
 
         sent++;
-        await admin.from('email_campaign_logs').insert({ campaign_id, recipient_email: r.email, status: 'sent', resend_id: json.id });
+        await admin.from('email_campaign_logs').insert({ campaign_id, recipient_email: r.email, status: 'sent', resend_id: result.id });
       } catch (e) {
         failed++;
         await admin.from('email_campaign_logs').insert({ campaign_id, recipient_email: r.email, status: 'failed', error_message: String(e) });

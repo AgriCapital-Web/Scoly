@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { sendBrevoEmail } from '../_shared/brevo.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,7 +8,6 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const SITE_URL = 'https://scoly.ci';
 
 Deno.serve(async (req) => {
@@ -65,30 +65,24 @@ Deno.serve(async (req) => {
 
     // Send confirmation email
     const confirmUrl = `${SITE_URL}/unsubscribe?confirm=${token}`;
-    if (RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Scoly <newsletter@scoly.ci>',
-          to: [email],
-          subject: '✉️ Confirmez votre abonnement à la newsletter Scoly',
-          html: `<div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff">
-            <div style="background:#1a3a6e;padding:32px;text-align:center"><h1 style="color:#fff;margin:0;font-size:28px">Scoly</h1></div>
-            <div style="padding:32px">
-              <h2 style="color:#1a3a6e;margin-top:0">Bonjour ${first_name || ''} 👋</h2>
-              <p style="color:#374151;line-height:1.6;font-size:16px">Merci pour votre intérêt ! Confirmez votre abonnement pour recevoir nos meilleures offres sur les fournitures scolaires et bureautiques.</p>
-              <div style="text-align:center;margin:32px 0">
-                <a href="${confirmUrl}" style="display:inline-block;background:#f59e0b;color:#fff;padding:14px 36px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px">✓ Confirmer mon abonnement</a>
-              </div>
-              <p style="color:#6b7280;font-size:13px;line-height:1.6">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
-              <p style="color:#9ca3af;font-size:11px;margin-top:24px;word-break:break-all">${confirmUrl}</p>
-            </div>
-            <div style="background:#f9fafb;padding:20px;text-align:center;color:#6b7280;font-size:12px">© Scoly — Côte d'Ivoire</div>
-          </div>`,
-        }),
-      }).catch(() => {});
-    }
+    await sendBrevoEmail({
+      from: { name: 'Scoly', email: 'newsletter@scoly.ci' },
+      to: email,
+      subject: '✉️ Confirmez votre abonnement à la newsletter Scoly',
+      html: `<div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff">
+        <div style="background:#1a3a6e;padding:32px;text-align:center"><h1 style="color:#fff;margin:0;font-size:28px">Scoly</h1></div>
+        <div style="padding:32px">
+          <h2 style="color:#1a3a6e;margin-top:0">Bonjour ${first_name || ''} 👋</h2>
+          <p style="color:#374151;line-height:1.6;font-size:16px">Merci pour votre intérêt ! Confirmez votre abonnement pour recevoir nos meilleures offres sur les fournitures scolaires et bureautiques.</p>
+          <div style="text-align:center;margin:32px 0">
+            <a href="${confirmUrl}" style="display:inline-block;background:#f59e0b;color:#fff;padding:14px 36px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px">✓ Confirmer mon abonnement</a>
+          </div>
+          <p style="color:#6b7280;font-size:13px;line-height:1.6">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+          <p style="color:#9ca3af;font-size:11px;margin-top:24px;word-break:break-all">${confirmUrl}</p>
+        </div>
+        <div style="background:#f9fafb;padding:20px;text-align:center;color:#6b7280;font-size:12px">© Scoly — Côte d'Ivoire</div>
+      </div>`,
+    }).catch(() => {});
 
     return ok({ success: true, message: 'Email de confirmation envoyé. Vérifiez votre boîte de réception.' });
   } catch (e) {

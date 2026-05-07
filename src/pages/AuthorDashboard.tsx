@@ -507,7 +507,7 @@ const ArticlesList = ({
   onEdit: (a: any) => void, 
   onDelete: (id: string) => void,
   onSubmit: (id: string) => void,
-  getStatusBadge: (status: string) => JSX.Element
+  getStatusBadge: (status: string) => React.ReactElement
 }) => {
   if (articles.length === 0) {
     return (
