@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendBrevoEmail } from "../_shared/brevo.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,7 +44,7 @@ serve(async (req) => {
     const safeSubject = sanitize(subject);
     const safeMessage = sanitize(message);
 
-    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    const FROM = { name: 'Scoly', email: 'contact@scoly.ci' };
 
     const html = `
 <!DOCTYPE html>
@@ -112,37 +113,24 @@ serve(async (req) => {
 </html>`;
 
     // Try to send with Resend, fallback to logging only
-    if (RESEND_API_KEY) {
-      const [adminEmail, userEmail] = await Promise.all([
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: "Scoly Contact <onboarding@resend.dev>",
-            to: ["contact@scoly.ci"],
-            reply_to: email,
-            subject: `[Contact Scoly] ${safeSubject}`,
-            html,
-          }),
-        }),
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: "Scoly <onboarding@resend.dev>",
-            to: [email],
-            subject: "✅ Nous avons bien reçu votre message — Scoly",
-            html: confirmHtml,
-          }),
-        })
-      ]);
+    const [adminEmail, userEmail] = await Promise.all([
+      sendBrevoEmail({
+        from: FROM,
+        to: 'contact@scoly.ci',
+        replyTo: email,
+        subject: `[Contact Scoly] ${safeSubject}`,
+        html,
+      }),
+      sendBrevoEmail({
+        from: FROM,
+        to: email,
+        subject: '✅ Nous avons bien reçu votre message — Scoly',
+        html: confirmHtml,
+      }),
+    ]);
 
-      if (!adminEmail.ok || !userEmail.ok) {
-        console.error('Email send failed:', await adminEmail.text());
-      }
-    } else {
-      // Log only when RESEND_API_KEY not configured
-      console.log('[Contact] New message:', { name: safeName, email, subject: safeSubject, message: safeMessage });
+    if (!adminEmail.ok || !userEmail.ok) {
+      console.error('Email send failed:', adminEmail, userEmail);
     }
 
     return new Response(

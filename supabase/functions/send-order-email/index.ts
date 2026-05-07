@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendBrevoEmail } from "../_shared/brevo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -206,37 +207,24 @@ serve(async (req) => {
 </body>
 </html>`;
 
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
-
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Scoly <onboarding@resend.dev>",
-        to: [recipientEmail],
-        subject,
-        html,
-      }),
+    const result = await sendBrevoEmail({
+      from: { name: "Scoly", email: "noreply@scoly.ci" },
+      to: recipientEmail,
+      subject,
+      html,
     });
 
-    const emailData = await emailResponse.json();
-    console.log("Email sent:", emailData);
+    console.log("Email sent:", result);
 
     await supabase.from("email_logs").insert({
       order_id: orderId,
       email_type: emailType,
       recipient_email: recipientEmail,
-      status: emailResponse.ok ? "sent" : "failed",
-      error_message: emailResponse.ok ? null : JSON.stringify(emailData),
+      status: result.ok ? "sent" : "failed",
+      error_message: result.ok ? null : JSON.stringify(result),
     });
 
-    return new Response(JSON.stringify({ success: true, emailId: emailData.id }), {
+    return new Response(JSON.stringify({ success: true, emailId: result.id }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
