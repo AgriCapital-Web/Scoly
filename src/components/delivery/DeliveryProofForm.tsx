@@ -145,7 +145,7 @@ const DeliveryProofForm = ({ orderId, proofType, onSuccess, onCancel }: Delivery
         updates.status = 'delivered';
       }
 
-      const { error: orderError } = await supabase
+      const { error: orderError } = await (supabase as any)
         .from('orders')
         .update(updates)
         .eq('id', orderId);
