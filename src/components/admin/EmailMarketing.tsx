@@ -11,9 +11,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RichTextEditor from "@/components/RichTextEditor";
+
+const SEGMENTS: { value: string; label: string }[] = [
+  { value: "newsletter_subscribers", label: "Abonnés newsletter (confirmés)" },
+  { value: "customers", label: "Clients (avec commandes)" },
+  { value: "account_users", label: "Utilisateurs ayant un compte" },
+  { value: "internal_members", label: "Membres internes (admin/modérateurs)" },
+  { value: "all_users", label: "Tous les utilisateurs" },
+  { value: "custom", label: "Segment personnalisé" },
+];
 
 type Subscriber = { id: string; email: string; first_name: string | null; is_active: boolean; confirmed: boolean; subscribed_at: string; source: string | null };
-type Campaign = { id: string; name: string; subject: string; preheader: string | null; html_content: string; status: string; sent_count: number; failed_count: number; recipients_count: number; created_at: string; sent_at: string | null };
+type Campaign = { id: string; name: string; subject: string; preheader: string | null; html_content: string; status: string; sent_count: number; failed_count: number; recipients_count: number; created_at: string; sent_at: string | null; segment_type?: string | null; segment_filters?: Record<string, unknown> | null };
 type CampaignLog = { id: string; recipient_email: string; status: string; error_message: string | null; sent_at: string };
 
 const DEFAULT_HTML = `<!DOCTYPE html><html><body style="margin:0;background:#f9fafb;font-family:Inter,Arial,sans-serif">
