@@ -329,10 +329,25 @@ const EmailMarketing = () => {
               <div><Label>Nom interne *</Label><Input value={editing?.name || ""} onChange={e => setEditing({ ...editing, name: e.target.value })} /></div>
               <div><Label>Sujet *</Label><Input value={editing?.subject || ""} onChange={e => setEditing({ ...editing, subject: e.target.value })} /></div>
             </div>
-            <div><Label>Pré-en-tête</Label><Input value={editing?.preheader || ""} onChange={e => setEditing({ ...editing, preheader: e.target.value })} /></div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label>Segment de destinataires *</Label>
+                <Select value={(editing?.segment_type as string) || "newsletter_subscribers"} onValueChange={(v) => setEditing({ ...editing, segment_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SEGMENTS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Pré-en-tête</Label><Input value={editing?.preheader || ""} onChange={e => setEditing({ ...editing, preheader: e.target.value })} /></div>
+            </div>
             <div>
-              <Label>HTML * <span className="text-xs text-muted-foreground">(variables: {"{{first_name}}, {{unsubscribe_url}}"})</span></Label>
-              <Textarea rows={12} className="font-mono text-xs" value={editing?.html_content || ""} onChange={e => setEditing({ ...editing, html_content: e.target.value })} />
+              <Label className="mb-1 block">Contenu de l'email * <span className="text-xs text-muted-foreground">(éditeur visuel — variables: {"{{first_name}}, {{unsubscribe_url}}"})</span></Label>
+              <RichTextEditor
+                content={editing?.html_content || ""}
+                onChange={(html) => setEditing({ ...editing, html_content: html })}
+                placeholder="Composez votre email..."
+              />
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button onClick={() => { setPreviewHtml(editing?.html_content || ""); setPreviewOpen(true); }} variant="outline"><Eye size={14} className="mr-1" />Aperçu</Button>
