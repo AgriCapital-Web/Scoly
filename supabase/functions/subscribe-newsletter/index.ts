@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
-import { sendBrevoEmail } from '../_shared/brevo.ts';
+import { sendBrevoEmail, brandedEmail } from '../_shared/brevo.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,10 +18,9 @@ Deno.serve(async (req) => {
     const email = String(body.email || '').toLowerCase().trim();
     const first_name = body.first_name ? String(body.first_name).slice(0, 80) : null;
     const source = body.source ? String(body.source).slice(0, 40) : 'website';
-    const honeypot = body.website; // bot trap
+    const honeypot = body.website;
 
-    // Anti-spam basics
-    if (honeypot) return ok({ success: true }); // silently swallow bots
+    if (honeypot) return ok({ success: true });
     if (!email || !/^\S+@\S+\.\S+$/.test(email) || email.length > 255) {
       return bad('Email invalide');
     }
@@ -29,63 +28,81 @@ Deno.serve(async (req) => {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // Rate limit: per IP (3 per hour) and per email (3 per day)
+    // Rate-limit léger
     const { data: ipRl } = await admin.rpc('check_rate_limit', {
       _identifier: `nl_ip_${ip}`, _action_type: 'newsletter_subscribe',
-      _max_attempts: 3, _window_seconds: 3600, _block_seconds: 3600,
+      _max_attempts: 5, _window_seconds: 3600, _block_seconds: 1800,
     });
     if (ipRl && ipRl[0] && !ipRl[0].allowed) return bad('Trop de tentatives. Réessayez plus tard.', 429);
 
-    const { data: emailRl } = await admin.rpc('check_rate_limit', {
-      _identifier: `nl_em_${email}`, _action_type: 'newsletter_subscribe',
-      _max_attempts: 3, _window_seconds: 86400, _block_seconds: 86400,
-    });
-    if (emailRl && emailRl[0] && !emailRl[0].allowed) return bad('Cet email a déjà été utilisé récemment.', 429);
-
-    // Look for existing
+    // Existant ?
     const { data: existing } = await admin.from('newsletter_subscribers')
-      .select('id, confirmed, confirmation_token, is_active').eq('email', email).maybeSingle();
+      .select('id, confirmed, is_active').eq('email', email).maybeSingle();
 
-    let token: string;
+    let subscriberId: string;
+    let already = false;
     if (existing) {
-      if (existing.confirmed && existing.is_active) {
-        return ok({ success: true, already: true, message: 'Vous êtes déjà abonné.' });
-      }
-      token = existing.confirmation_token;
+      subscriberId = existing.id;
+      if (existing.confirmed && existing.is_active) already = true;
       await admin.from('newsletter_subscribers').update({
-        first_name, source, confirmation_sent_at: new Date().toISOString(),
+        first_name: first_name ?? undefined,
+        source,
+        confirmed: true,
+        is_active: true,
+        confirmed_at: new Date().toISOString(),
+        confirmation_sent_at: new Date().toISOString(),
+        unsubscribed_at: null,
       }).eq('id', existing.id);
     } else {
       const { data: inserted, error } = await admin.from('newsletter_subscribers').insert({
-        email, first_name, source, is_active: false, confirmed: false,
-      }).select('confirmation_token').single();
+        email, first_name, source,
+        is_active: true, confirmed: true,
+        confirmed_at: new Date().toISOString(),
+        confirmation_sent_at: new Date().toISOString(),
+      }).select('id').single();
       if (error) throw error;
-      token = inserted.confirmation_token;
+      subscriberId = inserted.id;
     }
 
-    // Send confirmation email
-    const confirmUrl = `${SITE_URL}/unsubscribe?confirm=${token}`;
+    // Email de bienvenue (toujours envoyé, dédupliqué par email + jour)
+    const dedupeKey = `welcome:${email}:${new Date().toISOString().slice(0, 10)}`;
+    const html = brandedEmail({
+      title: `Bienvenue sur Scoly${first_name ? `, ${first_name}` : ''} 👋`,
+      bodyHtml: `
+        <p>Merci de rejoindre la communauté <strong>Scoly</strong> !</p>
+        <p>Vous recevrez désormais en exclusivité :</p>
+        <ul>
+          <li>🎁 Promotions et ventes flash sur les fournitures scolaires &amp; bureautiques</li>
+          <li>📚 Conseils rentrée et sélections d'experts</li>
+          <li>🚚 Annonces de livraison gratuite</li>
+        </ul>
+        <p>Votre abonnement est <strong>actif immédiatement</strong>. Bonne découverte !</p>
+      `,
+      ctaText: 'Découvrir la boutique',
+      ctaUrl: `${SITE_URL}/shop`,
+      footerExtra: `<a href="${SITE_URL}/unsubscribe?token=${subscriberId}" style="color:#94a3b8;text-decoration:none;">Se désinscrire</a>`,
+    });
+
     await sendBrevoEmail({
       from: { name: 'Scoly', email: 'newsletter@scoly.ci' },
       to: email,
-      subject: '✉️ Confirmez votre abonnement à la newsletter Scoly',
-      html: `<div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff">
-        <div style="background:#1a3a6e;padding:32px;text-align:center"><h1 style="color:#fff;margin:0;font-size:28px">Scoly</h1></div>
-        <div style="padding:32px">
-          <h2 style="color:#1a3a6e;margin-top:0">Bonjour ${first_name || ''} 👋</h2>
-          <p style="color:#374151;line-height:1.6;font-size:16px">Merci pour votre intérêt ! Confirmez votre abonnement pour recevoir nos meilleures offres sur les fournitures scolaires et bureautiques.</p>
-          <div style="text-align:center;margin:32px 0">
-            <a href="${confirmUrl}" style="display:inline-block;background:#f59e0b;color:#fff;padding:14px 36px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px">✓ Confirmer mon abonnement</a>
-          </div>
-          <p style="color:#6b7280;font-size:13px;line-height:1.6">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
-          <p style="color:#9ca3af;font-size:11px;margin-top:24px;word-break:break-all">${confirmUrl}</p>
-        </div>
-        <div style="background:#f9fafb;padding:20px;text-align:center;color:#6b7280;font-size:12px">© Scoly — Côte d'Ivoire</div>
-      </div>`,
-    }).catch(() => {});
+      subject: '🎉 Bienvenue sur Scoly — votre abonnement est actif',
+      html,
+      category: 'welcome',
+      emailType: 'newsletter_welcome',
+      dedupeKey,
+      metadata: { subscriber_id: subscriberId, source },
+    }).catch((e) => console.error('welcome email error:', e));
 
-    return ok({ success: true, message: 'Email de confirmation envoyé. Vérifiez votre boîte de réception.' });
+    return ok({
+      success: true,
+      already,
+      message: already
+        ? 'Vous êtes déjà abonné — un nouvel email de bienvenue vient de partir.'
+        : 'Abonnement confirmé. Vérifiez votre boîte pour l\'email de bienvenue.',
+    });
   } catch (e) {
+    console.error('subscribe-newsletter error:', e);
     return bad(String((e as Error).message || e), 400);
   }
 });
