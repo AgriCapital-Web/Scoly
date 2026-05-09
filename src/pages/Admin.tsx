@@ -67,6 +67,7 @@ import SocialMediaManager from "@/components/admin/SocialMediaManager";
 import DocumentationManager from "@/components/admin/DocumentationManager";
 import EducationAIManager from "@/components/admin/EducationAIManager";
 import EmailMarketing from "@/components/admin/EmailMarketing";
+import EmailLogsDashboard from "@/components/admin/EmailLogsDashboard";
 
 import { Share2 } from "lucide-react";
 
@@ -101,7 +102,8 @@ type TabType =
   | "referrals"
   | "flash_deals"
   | "education_ai"
-  | "email_marketing";
+  | "email_marketing"
+  | "email_logs";
 
 const Admin = () => {
   const { t, language } = useLanguage();
@@ -161,6 +163,7 @@ const Admin = () => {
     { id: "flash_deals", label: "Ventes Flash", icon: Zap },
     { id: "social_media", label: "Réseaux Sociaux", icon: Share2 },
     { id: "email_marketing", label: "📧 Email Marketing", icon: Bell },
+    { id: "email_logs", label: "📬 Journaux Email", icon: Bell },
     { id: "schools", label: "Écoles", icon: GraduationCap },
     { id: "resources", label: "Ressources Édu", icon: BookOpen },
     { id: "education_ai", label: "🧠 IA Éducation", icon: Brain },
