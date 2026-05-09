@@ -742,29 +742,50 @@ export type Database = {
       }
       email_campaign_logs: {
         Row: {
+          attempt_count: number
           campaign_id: string | null
+          created_at: string
+          dedupe_key: string | null
           error_message: string | null
           id: string
+          metadata: Json
+          provider: string | null
+          provider_message_id: string | null
           recipient_email: string
           resend_id: string | null
+          retryable: boolean
           sent_at: string
           status: string
         }
         Insert: {
+          attempt_count?: number
           campaign_id?: string | null
+          created_at?: string
+          dedupe_key?: string | null
           error_message?: string | null
           id?: string
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
           recipient_email: string
           resend_id?: string | null
+          retryable?: boolean
           sent_at?: string
           status: string
         }
         Update: {
+          attempt_count?: number
           campaign_id?: string | null
+          created_at?: string
+          dedupe_key?: string | null
           error_message?: string | null
           id?: string
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
           recipient_email?: string
           resend_id?: string | null
+          retryable?: boolean
           sent_at?: string
           status?: string
         }
@@ -789,6 +810,8 @@ export type Database = {
           preheader: string | null
           recipients_count: number | null
           scheduled_at: string | null
+          segment_filters: Json
+          segment_type: string
           sent_at: string | null
           sent_count: number | null
           status: string
@@ -806,6 +829,8 @@ export type Database = {
           preheader?: string | null
           recipients_count?: number | null
           scheduled_at?: string | null
+          segment_filters?: Json
+          segment_type?: string
           sent_at?: string | null
           sent_count?: number | null
           status?: string
@@ -823,6 +848,8 @@ export type Database = {
           preheader?: string | null
           recipients_count?: number | null
           scheduled_at?: string | null
+          segment_filters?: Json
+          segment_type?: string
           sent_at?: string | null
           sent_count?: number | null
           status?: string
@@ -834,31 +861,64 @@ export type Database = {
       }
       email_logs: {
         Row: {
+          attempt_count: number
+          created_at: string
+          dedupe_key: string | null
+          delivered_at: string | null
+          email_category: string | null
           email_type: string
           error_message: string | null
           id: string
+          last_attempt_at: string | null
+          metadata: Json
           order_id: string | null
+          provider: string | null
+          provider_message_id: string | null
           recipient_email: string
+          retryable: boolean
           sent_at: string | null
           status: string | null
+          updated_at: string
         }
         Insert: {
+          attempt_count?: number
+          created_at?: string
+          dedupe_key?: string | null
+          delivered_at?: string | null
+          email_category?: string | null
           email_type: string
           error_message?: string | null
           id?: string
+          last_attempt_at?: string | null
+          metadata?: Json
           order_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
           recipient_email: string
+          retryable?: boolean
           sent_at?: string | null
           status?: string | null
+          updated_at?: string
         }
         Update: {
+          attempt_count?: number
+          created_at?: string
+          dedupe_key?: string | null
+          delivered_at?: string | null
+          email_category?: string | null
           email_type?: string
           error_message?: string | null
           id?: string
+          last_attempt_at?: string | null
+          metadata?: Json
           order_id?: string | null
+          provider?: string | null
+          provider_message_id?: string | null
           recipient_email?: string
+          retryable?: boolean
           sent_at?: string | null
           status?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -869,6 +929,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_provider_daily_stats: {
+        Row: {
+          failed_count: number
+          provider: string
+          sent_count: number
+          stat_date: string
+          updated_at: string
+        }
+        Insert: {
+          failed_count?: number
+          provider: string
+          sent_count?: number
+          stat_date: string
+          updated_at?: string
+        }
+        Update: {
+          failed_count?: number
+          provider?: string
+          sent_count?: number
+          stat_date?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       faq: {
         Row: {
@@ -2388,6 +2472,29 @@ export type Database = {
       }
     }
     Functions: {
+      auto_confirm_newsletter_subscriber: {
+        Args: { _subscriber_id: string }
+        Returns: {
+          confirmation_sent_at: string | null
+          confirmation_token: string
+          confirmed: boolean
+          confirmed_at: string | null
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean
+          source: string | null
+          subscribed_at: string
+          unsubscribe_token: string
+          unsubscribed_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "newsletter_subscribers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       check_password_strength: { Args: { _password: string }; Returns: boolean }
       check_rate_limit: {
         Args: {
@@ -2412,6 +2519,80 @@ export type Database = {
           email: string
           success: boolean
         }[]
+      }
+      finalize_campaign_email_log: {
+        Args: {
+          _attempt_count?: number
+          _campaign_id: string
+          _dedupe_key: string
+          _error_message?: string
+          _metadata?: Json
+          _provider: string
+          _provider_message_id?: string
+          _recipient_email: string
+          _retryable?: boolean
+          _status: string
+        }
+        Returns: {
+          attempt_count: number
+          campaign_id: string | null
+          created_at: string
+          dedupe_key: string | null
+          error_message: string | null
+          id: string
+          metadata: Json
+          provider: string | null
+          provider_message_id: string | null
+          recipient_email: string
+          resend_id: string | null
+          retryable: boolean
+          sent_at: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "email_campaign_logs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      finalize_email_log: {
+        Args: {
+          _attempt_increment?: number
+          _error_message?: string
+          _log_id: string
+          _metadata_patch?: Json
+          _provider: string
+          _provider_message_id?: string
+          _retryable?: boolean
+          _status: string
+        }
+        Returns: {
+          attempt_count: number
+          created_at: string
+          dedupe_key: string | null
+          delivered_at: string | null
+          email_category: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          metadata: Json
+          order_id: string | null
+          provider: string | null
+          provider_message_id: string | null
+          recipient_email: string
+          retryable: boolean
+          sent_at: string | null
+          status: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "email_logs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       generate_referral_code: { Args: never; Returns: string }
       get_admin_stats: {
@@ -2462,6 +2643,26 @@ export type Database = {
           in_transit: number
           pending_pickup: number
           total_assigned: number
+        }[]
+      }
+      get_email_provider_daily_stats: {
+        Args: never
+        Returns: {
+          failed_count: number
+          provider: string
+          sent_count: number
+          stat_date: string
+          updated_at: string
+        }[]
+      }
+      get_email_segment_recipients: {
+        Args: { _filters?: Json; _segment_type: string }
+        Returns: {
+          first_name: string
+          metadata: Json
+          recipient_email: string
+          source_id: string
+          source_table: string
         }[]
       }
       get_share_stats: {
@@ -2527,6 +2728,42 @@ export type Database = {
           reward_id: string
           success: boolean
         }[]
+      }
+      reserve_email_log: {
+        Args: {
+          _dedupe_key: string
+          _email_category?: string
+          _email_type: string
+          _metadata?: Json
+          _order_id?: string
+          _recipient_email: string
+        }
+        Returns: {
+          attempt_count: number
+          created_at: string
+          dedupe_key: string | null
+          delivered_at: string | null
+          email_category: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          metadata: Json
+          order_id: string | null
+          provider: string | null
+          provider_message_id: string | null
+          recipient_email: string
+          retryable: boolean
+          sent_at: string | null
+          status: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "email_logs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       revoke_blocked_session: {
         Args: { _session_id: string }
