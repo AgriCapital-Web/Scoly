@@ -23,7 +23,7 @@ const SEGMENTS: { value: string; label: string }[] = [
 ];
 
 type Subscriber = { id: string; email: string; first_name: string | null; is_active: boolean; confirmed: boolean; subscribed_at: string; source: string | null };
-type Campaign = { id: string; name: string; subject: string; preheader: string | null; html_content: string; status: string; sent_count: number; failed_count: number; recipients_count: number; created_at: string; sent_at: string | null; segment_type?: string | null; segment_filters?: Record<string, unknown> | null };
+type Campaign = { id: string; name: string; subject: string; preheader: string | null; html_content: string; status: string; sent_count: number; failed_count: number; recipients_count: number; created_at: string; sent_at: string | null; segment_type?: string | null; segment_filters?: any };
 type CampaignLog = { id: string; recipient_email: string; status: string; error_message: string | null; sent_at: string };
 
 const DEFAULT_HTML = `<!DOCTYPE html><html><body style="margin:0;background:#f9fafb;font-family:Inter,Arial,sans-serif">
