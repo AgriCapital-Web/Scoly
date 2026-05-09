@@ -99,6 +99,8 @@ const EmailMarketing = () => {
     const payload = {
       name: editing.name, subject: editing.subject, preheader: editing.preheader || null,
       html_content: editing.html_content, status: "draft" as const,
+      segment_type: editing.segment_type || "newsletter_subscribers",
+      segment_filters: editing.segment_filters || {},
     };
     const { error } = editing.id
       ? await supabase.from("email_campaigns").update(payload).eq("id", editing.id)
