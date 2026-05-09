@@ -283,6 +283,7 @@ const Admin = () => {
           {activeTab === "dashboard" && <AdminDashboard />}
           {activeTab === "ai_manager" && <AIManager />}
           {activeTab === "email_marketing" && <EmailMarketing />}
+          {activeTab === "email_logs" && <EmailLogsDashboard />}
           {activeTab === "stats" && <AdvancedStats />}
           {activeTab === "sharestats" && <ShareStatsTab />}
           {activeTab === "products" && <ProductsTab />}
