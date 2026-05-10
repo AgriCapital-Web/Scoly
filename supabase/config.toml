@@ -68,3 +68,6 @@ verify_jwt = true
 
 [functions.subscribe-newsletter]
 verify_jwt = false
+
+[functions.resend-webhook]
+verify_jwt = false
