@@ -68,6 +68,7 @@ import DocumentationManager from "@/components/admin/DocumentationManager";
 import EducationAIManager from "@/components/admin/EducationAIManager";
 import EmailMarketing from "@/components/admin/EmailMarketing";
 import EmailLogsDashboard from "@/components/admin/EmailLogsDashboard";
+import CampaignAnalyticsDashboard from "@/components/admin/CampaignAnalyticsDashboard";
 
 import { Share2 } from "lucide-react";
 
@@ -103,7 +104,8 @@ type TabType =
   | "flash_deals"
   | "education_ai"
   | "email_marketing"
-  | "email_logs";
+  | "email_logs"
+  | "email_analytics";
 
 const Admin = () => {
   const { t, language } = useLanguage();
@@ -164,6 +166,7 @@ const Admin = () => {
     { id: "social_media", label: "Réseaux Sociaux", icon: Share2 },
     { id: "email_marketing", label: "📧 Email Marketing", icon: Bell },
     { id: "email_logs", label: "📬 Journaux Email", icon: Bell },
+    { id: "email_analytics", label: "📊 Analytics Campagnes", icon: BarChart3 },
     { id: "schools", label: "Écoles", icon: GraduationCap },
     { id: "resources", label: "Ressources Édu", icon: BookOpen },
     { id: "education_ai", label: "🧠 IA Éducation", icon: Brain },
@@ -284,6 +287,7 @@ const Admin = () => {
           {activeTab === "ai_manager" && <AIManager />}
           {activeTab === "email_marketing" && <EmailMarketing />}
           {activeTab === "email_logs" && <EmailLogsDashboard />}
+          {activeTab === "email_analytics" && <CampaignAnalyticsDashboard />}
           {activeTab === "stats" && <AdvancedStats />}
           {activeTab === "sharestats" && <ShareStatsTab />}
           {activeTab === "products" && <ProductsTab />}
