@@ -98,13 +98,19 @@ Deno.serve(async (req) => {
         })
         .eq("provider_message_id", messageId);
 
-      await admin
-        .from("email_campaign_logs")
-        .update({
-          status,
-          metadata: { resend_event: type },
-        })
-        .eq("provider_message_id", messageId);
+      // Met à jour les compteurs par campagne (delivered/opened/clicked/bounced/complained)
+      const eventForCampaign = ["delivered", "opened", "clicked", "bounced", "complained"].includes(status) ? status : null;
+      if (eventForCampaign) {
+        await admin.rpc("update_campaign_event_counts", {
+          _provider_message_id: messageId,
+          _event: eventForCampaign,
+        });
+      } else {
+        await admin
+          .from("email_campaign_logs")
+          .update({ status, metadata: { resend_event: type } })
+          .eq("provider_message_id", messageId);
+      }
     }
   } catch (e) {
     console.error("resend-webhook DB error:", e);

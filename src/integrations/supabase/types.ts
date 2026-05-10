@@ -743,12 +743,19 @@ export type Database = {
       email_campaign_logs: {
         Row: {
           attempt_count: number
+          bounced_at: string | null
           campaign_id: string | null
+          clicked_at: string | null
+          complained_at: string | null
           created_at: string
           dedupe_key: string | null
+          delivered_at: string | null
           error_message: string | null
           id: string
+          last_error_code: string | null
           metadata: Json
+          next_retry_at: string | null
+          opened_at: string | null
           provider: string | null
           provider_message_id: string | null
           recipient_email: string
@@ -759,12 +766,19 @@ export type Database = {
         }
         Insert: {
           attempt_count?: number
+          bounced_at?: string | null
           campaign_id?: string | null
+          clicked_at?: string | null
+          complained_at?: string | null
           created_at?: string
           dedupe_key?: string | null
+          delivered_at?: string | null
           error_message?: string | null
           id?: string
+          last_error_code?: string | null
           metadata?: Json
+          next_retry_at?: string | null
+          opened_at?: string | null
           provider?: string | null
           provider_message_id?: string | null
           recipient_email: string
@@ -775,12 +789,19 @@ export type Database = {
         }
         Update: {
           attempt_count?: number
+          bounced_at?: string | null
           campaign_id?: string | null
+          clicked_at?: string | null
+          complained_at?: string | null
           created_at?: string
           dedupe_key?: string | null
+          delivered_at?: string | null
           error_message?: string | null
           id?: string
+          last_error_code?: string | null
           metadata?: Json
+          next_retry_at?: string | null
+          opened_at?: string | null
           provider?: string | null
           provider_message_id?: string | null
           recipient_email?: string
@@ -801,12 +822,20 @@ export type Database = {
       }
       email_campaigns: {
         Row: {
+          bounced_count: number
+          clicked_count: number
+          complained_count: number
           created_at: string
           created_by: string | null
+          delivered_count: number
           failed_count: number | null
+          from_email: string | null
+          from_name: string | null
           html_content: string
           id: string
+          image_url: string | null
           name: string
+          opened_count: number
           preheader: string | null
           recipients_count: number | null
           scheduled_at: string | null
@@ -820,12 +849,20 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bounced_count?: number
+          clicked_count?: number
+          complained_count?: number
           created_at?: string
           created_by?: string | null
+          delivered_count?: number
           failed_count?: number | null
+          from_email?: string | null
+          from_name?: string | null
           html_content: string
           id?: string
+          image_url?: string | null
           name: string
+          opened_count?: number
           preheader?: string | null
           recipients_count?: number | null
           scheduled_at?: string | null
@@ -839,12 +876,20 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bounced_count?: number
+          clicked_count?: number
+          complained_count?: number
           created_at?: string
           created_by?: string | null
+          delivered_count?: number
           failed_count?: number | null
+          from_email?: string | null
+          from_name?: string | null
           html_content?: string
           id?: string
+          image_url?: string | null
           name?: string
+          opened_count?: number
           preheader?: string | null
           recipients_count?: number | null
           scheduled_at?: string | null
@@ -870,7 +915,9 @@ export type Database = {
           error_message: string | null
           id: string
           last_attempt_at: string | null
+          last_error_code: string | null
           metadata: Json
+          next_retry_at: string | null
           order_id: string | null
           provider: string | null
           provider_message_id: string | null
@@ -890,7 +937,9 @@ export type Database = {
           error_message?: string | null
           id?: string
           last_attempt_at?: string | null
+          last_error_code?: string | null
           metadata?: Json
+          next_retry_at?: string | null
           order_id?: string | null
           provider?: string | null
           provider_message_id?: string | null
@@ -910,7 +959,9 @@ export type Database = {
           error_message?: string | null
           id?: string
           last_attempt_at?: string | null
+          last_error_code?: string | null
           metadata?: Json
+          next_retry_at?: string | null
           order_id?: string | null
           provider?: string | null
           provider_message_id?: string | null
@@ -2535,12 +2586,19 @@ export type Database = {
         }
         Returns: {
           attempt_count: number
+          bounced_at: string | null
           campaign_id: string | null
+          clicked_at: string | null
+          complained_at: string | null
           created_at: string
           dedupe_key: string | null
+          delivered_at: string | null
           error_message: string | null
           id: string
+          last_error_code: string | null
           metadata: Json
+          next_retry_at: string | null
+          opened_at: string | null
           provider: string | null
           provider_message_id: string | null
           recipient_email: string
@@ -2577,7 +2635,9 @@ export type Database = {
           error_message: string | null
           id: string
           last_attempt_at: string | null
+          last_error_code: string | null
           metadata: Json
+          next_retry_at: string | null
           order_id: string | null
           provider: string | null
           provider_message_id: string | null
@@ -2605,6 +2665,28 @@ export type Database = {
           total_products: number
           total_revenue: number
           total_users: number
+        }[]
+      }
+      get_campaign_analytics: {
+        Args: never
+        Returns: {
+          bounce_rate: number
+          bounced_count: number
+          campaign_id: string
+          click_rate: number
+          clicked_count: number
+          complained_count: number
+          delivered_count: number
+          delivery_rate: number
+          failed_count: number
+          name: string
+          open_rate: number
+          opened_count: number
+          recipients_count: number
+          sent_at: string
+          sent_count: number
+          status: string
+          subject: string
         }[]
       }
       get_delivery_orders: {
@@ -2663,6 +2745,20 @@ export type Database = {
           recipient_email: string
           source_id: string
           source_table: string
+        }[]
+      }
+      get_failed_emails_for_retry: {
+        Args: { _limit?: number }
+        Returns: {
+          attempt_count: number
+          campaign_id: string
+          dedupe_key: string
+          email_category: string
+          email_type: string
+          log_id: string
+          metadata: Json
+          recipient_email: string
+          source: string
         }[]
       }
       get_share_stats: {
@@ -2748,7 +2844,9 @@ export type Database = {
           error_message: string | null
           id: string
           last_attempt_at: string | null
+          last_error_code: string | null
           metadata: Json
+          next_retry_at: string | null
           order_id: string | null
           provider: string | null
           provider_message_id: string | null
@@ -2768,6 +2866,19 @@ export type Database = {
       revoke_blocked_session: {
         Args: { _session_id: string }
         Returns: boolean
+      }
+      schedule_email_retry: {
+        Args: {
+          _attempt: number
+          _error?: string
+          _log_id: string
+          _source: string
+        }
+        Returns: undefined
+      }
+      update_campaign_event_counts: {
+        Args: { _event: string; _provider_message_id: string }
+        Returns: undefined
       }
       validate_coupon: {
         Args: { _code: string; _order_total: number }

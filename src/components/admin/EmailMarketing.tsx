@@ -52,6 +52,7 @@ const EmailMarketing = () => {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiType, setAiType] = useState("newsletter");
+  const [aiWithVisual, setAiWithVisual] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState("");
@@ -134,7 +135,7 @@ const EmailMarketing = () => {
     if (!aiPrompt) return toast.error("Décrivez votre email");
     setAiLoading(true);
     const { data, error } = await supabase.functions.invoke("generate-email-content", {
-      body: { prompt: aiPrompt, type: aiType },
+      body: { prompt: aiPrompt, type: aiType, with_visual: aiWithVisual },
     });
     setAiLoading(false);
     if (error) return toast.error(error.message);
@@ -143,10 +144,11 @@ const EmailMarketing = () => {
       subject: data.subject,
       preheader: data.preheader,
       html_content: data.html_content,
-    });
+      ...(data.image_url ? { image_url: data.image_url } : {}),
+    } as any);
     setAiOpen(false);
     setAiPrompt("");
-    toast.success("✨ Email généré !");
+    toast.success(aiWithVisual ? "✨ Email + visuel générés !" : "✨ Email généré !");
   };
 
   const exportCSV = () => {
@@ -213,6 +215,12 @@ const EmailMarketing = () => {
                     <Label>Décrivez votre email</Label>
                     <Textarea rows={4} value={aiPrompt} onChange={e => setAiPrompt(e.target.value)}
                       placeholder="Ex : Annoncer -30% sur tous les cahiers cette semaine pour la rentrée, ton chaleureux et urgent" />
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md border p-3 bg-muted/40">
+                    <input id="aiVisual" type="checkbox" checked={aiWithVisual} onChange={(e) => setAiWithVisual(e.target.checked)} />
+                    <Label htmlFor="aiVisual" className="cursor-pointer text-sm">
+                      🎨 Générer aussi un visuel (bannière) adapté au type — recommandé pour promo / vente flash
+                    </Label>
                   </div>
                   <Button onClick={generateAI} disabled={aiLoading} className="w-full">
                     {aiLoading ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
