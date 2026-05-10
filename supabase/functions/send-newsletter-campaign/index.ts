@@ -90,18 +90,22 @@ Deno.serve(async (req) => {
       }
       if (result.ok) sent++; else failed++;
 
-      await admin.rpc('finalize_campaign_email_log', {
-        _campaign_id: campaign_id,
-        _recipient_email: r.recipient_email,
-        _dedupe_key: dedupeKey,
-        _provider: result.provider || 'unknown',
-        _status: result.ok ? 'sent' : 'failed',
-        _provider_message_id: result.messageId || null,
-        _error_message: result.ok ? null : result.error || null,
-        _retryable: !!result.retryable,
-        _attempt_count: 1,
-        _metadata: { source_table: r.source_table, source_id: r.source_id, ...(r.metadata || {}) },
-      }).catch((e: unknown) => console.error('campaign log error:', e));
+      try {
+        await admin.rpc('finalize_campaign_email_log', {
+          _campaign_id: campaign_id,
+          _recipient_email: r.recipient_email,
+          _dedupe_key: dedupeKey,
+          _provider: result.provider || 'unknown',
+          _status: result.ok ? 'sent' : 'failed',
+          _provider_message_id: result.messageId || null,
+          _error_message: result.ok ? null : result.error || null,
+          _retryable: !!result.retryable,
+          _attempt_count: 1,
+          _metadata: { source_table: r.source_table, source_id: r.source_id, ...(r.metadata || {}) },
+        });
+      } catch (e) {
+        console.error('campaign log error:', e);
+      }
     }
 
     if (!test_email) {
