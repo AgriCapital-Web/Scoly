@@ -11,7 +11,12 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-export const DEFAULT_FROM = { name: "Scoly", email: "noreply@scoly.ci" };
+export const DEFAULT_FROM = {
+  name: Deno.env.get("EMAIL_FROM_NAME") || "Scoly",
+  email: Deno.env.get("EMAIL_FROM_ADDRESS") || "noreply@scoly.ci",
+};
+// Sender de secours quand le domaine principal n'est pas vérifié sur Resend.
+export const RESEND_FALLBACK_FROM = { name: "Scoly", email: "onboarding@resend.dev" };
 export const BREVO_DAILY_LIMIT = 300;
 export const RESEND_DAILY_LIMIT = 100;
 
@@ -130,10 +135,11 @@ async function callBrevo(opts: BrevoEmail) {
   return { ok: true as const, status: resp.status, messageId: (data as any).messageId ?? null };
 }
 
-async function callResend(opts: BrevoEmail) {
+async function callResend(opts: BrevoEmail, useFallbackFrom = false) {
   const toArr = Array.isArray(opts.to) ? opts.to : [opts.to];
+  const sender = useFallbackFrom ? RESEND_FALLBACK_FROM : (opts.from || DEFAULT_FROM);
   const body: Record<string, unknown> = {
-    from: `${(opts.from || DEFAULT_FROM).name} <${(opts.from || DEFAULT_FROM).email}>`,
+    from: `${sender.name} <${sender.email}>`,
     to: toArr,
     subject: opts.subject,
     html: opts.html,
@@ -168,12 +174,21 @@ async function trySend(provider: EmailProvider, opts: BrevoEmail) {
   let lastErr: { error: string; retryable: boolean; status?: number } | null = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const r = provider === "brevo" ? await callBrevo(opts) : await callResend(opts);
-    if (r.ok) return { ok: true as const, messageId: r.messageId, attempts: attempt };
+    if (r.ok) return { ok: true as const, messageId: r.messageId, attempts: attempt, provider };
     lastErr = { error: r.error, retryable: r.retryable, status: r.status };
+    // Erreur 4xx liée au sender → on tente le sender de secours pour Resend
+    if (provider === "resend" && r.status && r.status >= 400 && r.status < 500 &&
+        /from|domain|sender|verif/i.test(r.error || "")) {
+      console.warn("[email] Resend sender refused, retrying with onboarding@resend.dev");
+      const r2 = await callResend(opts, true);
+      if (r2.ok) return { ok: true as const, messageId: r2.messageId, attempts: attempt + 1, provider };
+      lastErr = { error: r2.error, retryable: r2.retryable, status: r2.status };
+    }
     if (!r.retryable) break;
     await sleep(300 * Math.pow(2, attempt - 1));
   }
-  return { ok: false as const, error: lastErr?.error || "unknown", retryable: !!lastErr?.retryable, attempts: maxAttempts };
+  console.error(`[email] ${provider} failed:`, lastErr);
+  return { ok: false as const, error: lastErr?.error || "unknown", retryable: !!lastErr?.retryable, attempts: maxAttempts, provider };
 }
 
 /**
