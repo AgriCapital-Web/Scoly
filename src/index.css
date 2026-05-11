@@ -49,14 +49,14 @@
     /* Borders & Inputs */
     --border: 220 15% 88%;
     --input: 220 15% 88%;
-    --ring: 213 55% 23%;
+    --ring: 224 64% 33%;
     
     --radius: 0.75rem;
     
-    /* Gradients - Solid backgrounds preferred for contrast */
-    --gradient-primary: linear-gradient(135deg, hsl(220, 65%, 15%) 0%, hsl(220, 50%, 28%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(24, 90%, 48%) 0%, hsl(24, 95%, 56%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(220, 65%, 14%) 0%, hsl(220, 55%, 24%) 100%);
+    /* Gradients — alignés sur le logo (navy + orange) */
+    --gradient-primary: linear-gradient(135deg, hsl(224, 70%, 22%) 0%, hsl(224, 60%, 40%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(24, 95%, 50%) 0%, hsl(24, 95%, 60%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(224, 70%, 20%) 0%, hsl(224, 60%, 32%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(40, 33%, 98%) 100%);
     
     /* Shadows */
