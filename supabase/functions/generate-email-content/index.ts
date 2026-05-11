@@ -6,7 +6,8 @@ const corsHeaders = {
 };
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-const LOGO_URL = 'https://scoly.ci/logo-scoly.png';
+const LOGO_URL = 'https://scoly-ci-play.lovable.app/logo-scoly-email.png';
+import { SCOLY_LOGO_BASE64 } from '../_shared/logo-base64.ts';
 
 const VISUAL_PROMPTS: Record<string, string> = {
   newsletter: "Une bannière éditoriale moderne pour la newsletter Scoly (fournitures scolaires Côte d'Ivoire). Composition épurée, palette bleu marine #1e3a8a et orange vif #f97316, accent or. Pas de texte. Format paysage 16:9.",
