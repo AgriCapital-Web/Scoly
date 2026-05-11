@@ -304,8 +304,11 @@ export async function sendBrevoEmail(opts: BrevoEmail): Promise<SendResult> {
   };
 }
 
-/** Logo Scoly inline pour intégration dans les emails (PNG bleu marine + orange). */
-export const SCOLY_LOGO_URL = "https://scoly.ci/logo-scoly.png";
+/** Logo Scoly — URL hébergée stable (Lovable CDN) pour la majorité des clients mail. */
+export const SCOLY_LOGO_URL = "https://scoly-ci-play.lovable.app/logo-scoly-email.png";
+/** Fallback Base64 du logo (clients qui bloquent les images distantes type Outlook desktop). */
+export { SCOLY_LOGO_BASE64 } from "./logo-base64.ts";
+import { SCOLY_LOGO_BASE64 as _LOGO_B64 } from "./logo-base64.ts";
 
 /** Wrapper email branding Scoly — entête avec logo, footer responsive. */
 export function brandedEmail({
@@ -325,7 +328,7 @@ export function brandedEmail({
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827;">
   <div style="max-width:640px;margin:0 auto;padding:20px;">
     <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);padding:28px;border-radius:16px 16px 0 0;text-align:center;">
-      <img src="${SCOLY_LOGO_URL}" alt="Scoly" width="140" style="display:inline-block;max-width:140px;height:auto;background:#fff;padding:8px 14px;border-radius:10px;" />
+      <img src="${SCOLY_LOGO_URL}" alt="Scoly" width="180" style="display:inline-block;max-width:180px;height:auto;background:#fff;padding:10px 18px;border-radius:12px;" onerror="this.onerror=null;this.src='${_LOGO_B64}';" />
       <p style="margin:14px 0 0;color:rgba(255,255,255,0.7);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">Fournitures scolaires &amp; bureautiques</p>
     </div>
     <div style="background:#ffffff;padding:32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">

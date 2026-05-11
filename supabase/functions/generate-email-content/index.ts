@@ -6,7 +6,8 @@ const corsHeaders = {
 };
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-const LOGO_URL = 'https://scoly.ci/logo-scoly.png';
+const LOGO_URL = 'https://scoly-ci-play.lovable.app/logo-scoly-email.png';
+import { SCOLY_LOGO_BASE64 } from '../_shared/logo-base64.ts';
 
 const VISUAL_PROMPTS: Record<string, string> = {
   newsletter: "Une bannière éditoriale moderne pour la newsletter Scoly (fournitures scolaires Côte d'Ivoire). Composition épurée, palette bleu marine #1e3a8a et orange vif #f97316, accent or. Pas de texte. Format paysage 16:9.",
@@ -45,7 +46,7 @@ function brandWrap(title: string, preheader: string, inner: string, imageUrl: st
     <tr><td align="center">
       <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px -12px rgba(15,23,42,0.18);">
         <tr><td style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:30px 24px;text-align:center;">
-          <img src="${LOGO_URL}" alt="Scoly" width="160" style="display:inline-block;background:#ffffff;padding:10px 18px;border-radius:12px;max-width:160px;height:auto;" />
+          <img src="${LOGO_URL}" alt="Scoly" width="180" style="display:inline-block;background:#ffffff;padding:10px 18px;border-radius:12px;max-width:180px;height:auto;" onerror="this.onerror=null;this.src='${SCOLY_LOGO_BASE64}';" />
           <p style="margin:14px 0 0;color:rgba(255,255,255,0.78);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">Fournitures scolaires &amp; bureautiques</p>
         </td></tr>
         ${banner}
