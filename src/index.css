@@ -12,19 +12,19 @@
 
 @layer base {
   :root {
-    /* Deep Navy - Primary (Trust, Education) */
-    --primary: 220 65% 18%;
+    /* Deep Navy — Primary (couleur exacte du logo Scoly #1e3a8a) */
+    --primary: 224 64% 33%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 220 50% 35%;
-    --primary-dark: 220 70% 12%;
+    --primary-light: 224 60% 48%;
+    --primary-dark: 224 70% 22%;
     
-    /* Warm Orange - Secondary (Energy, Local Identity) */
-    --secondary: 24 90% 50%;
+    /* Vivid Orange — Secondary (couleur exacte du logo Scoly #f97316) */
+    --secondary: 24 95% 53%;
     --secondary-foreground: 0 0% 100%;
     --secondary-light: 24 95% 62%;
     
-    /* Warm Amber - Accent (Energy, Warmth) */
-    --accent: 30 85% 48%;
+    /* Orange Accent — match logo */
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
     
     /* Backgrounds */
