@@ -304,8 +304,11 @@ export async function sendBrevoEmail(opts: BrevoEmail): Promise<SendResult> {
   };
 }
 
-/** Logo Scoly inline pour intégration dans les emails (PNG bleu marine + orange). */
-export const SCOLY_LOGO_URL = "https://scoly.ci/logo-scoly.png";
+/** Logo Scoly — URL hébergée stable (Lovable CDN) pour la majorité des clients mail. */
+export const SCOLY_LOGO_URL = "https://scoly-ci-play.lovable.app/logo-scoly-email.png";
+/** Fallback Base64 du logo (clients qui bloquent les images distantes type Outlook desktop). */
+export { SCOLY_LOGO_BASE64 } from "./logo-base64.ts";
+import { SCOLY_LOGO_BASE64 as _LOGO_B64 } from "./logo-base64.ts";
 
 /** Wrapper email branding Scoly — entête avec logo, footer responsive. */
 export function brandedEmail({
