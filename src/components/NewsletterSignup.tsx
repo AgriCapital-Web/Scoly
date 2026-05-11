@@ -29,15 +29,19 @@ const NewsletterSignup = ({ variant = "default" }: { variant?: "default" | "foot
 
   if (variant === "footer") {
     return (
-      <form onSubmit={submit} className="flex flex-col sm:flex-row gap-2">
+      <form onSubmit={submit} className="flex flex-col gap-2">
         <input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)}
           style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }} aria-hidden />
-        <Input type="email" required placeholder="Votre email" value={email} onChange={e => setEmail(e.target.value)}
+        <Input type="text" placeholder="Votre nom complet" value={firstName} onChange={e => setFirstName(e.target.value)}
           className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
-        <Button type="submit" disabled={loading || done} variant="hero" className="shrink-0">
-          {done ? <CheckCircle size={16} /> : <Send size={16} />}
-          {done ? "Vérifiez votre email" : "S'abonner"}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input type="email" required placeholder="Votre email" value={email} onChange={e => setEmail(e.target.value)}
+            className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
+          <Button type="submit" disabled={loading || done} variant="hero" className="shrink-0">
+            {done ? <CheckCircle size={16} /> : <Send size={16} />}
+            {done ? "Vérifiez email" : "S'abonner"}
+          </Button>
+        </div>
       </form>
     );
   }

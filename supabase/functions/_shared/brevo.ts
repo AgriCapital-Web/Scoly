@@ -230,6 +230,8 @@ export async function sendBrevoEmail(opts: BrevoEmail): Promise<SendResult> {
 
   let provider = primary;
   let result = await trySend(provider, opts);
+  // Compteur quotidien (succès ou échec) pour le fournisseur effectivement appelé
+  if (a) { try { await a.rpc("increment_email_provider_stat", { _provider: provider, _success: result.ok }); } catch (e) { console.error("increment_email_provider_stat", e); } }
 
   // Fallback : si Brevo échoue → Resend (ou inverse) si l'autre fournisseur est dispo
   if (!result.ok) {
@@ -237,6 +239,7 @@ export async function sendBrevoEmail(opts: BrevoEmail): Promise<SendResult> {
     const altKey = alt === "brevo" ? BREVO_API_KEY : RESEND_API_KEY;
     if (altKey) {
       const alt2 = await trySend(alt, opts);
+      if (a) { try { await a.rpc("increment_email_provider_stat", { _provider: alt, _success: alt2.ok }); } catch (e) { console.error("increment_email_provider_stat", e); } }
       if (alt2.ok) {
         provider = alt;
         result = alt2;

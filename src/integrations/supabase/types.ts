@@ -2761,6 +2761,17 @@ export type Database = {
           source: string
         }[]
       }
+      get_provider_quota_status: {
+        Args: never
+        Returns: {
+          daily_limit: number
+          failed_today: number
+          provider: string
+          remaining: number
+          sent_today: number
+          usage_pct: number
+        }[]
+      }
       get_share_stats: {
         Args: { _end_date?: string; _start_date?: string }
         Returns: {
@@ -2810,6 +2821,10 @@ export type Database = {
       }
       increment_article_views: {
         Args: { _article_id: string }
+        Returns: undefined
+      }
+      increment_email_provider_stat: {
+        Args: { _provider: string; _success: boolean }
         Returns: undefined
       }
       increment_product_views: {
