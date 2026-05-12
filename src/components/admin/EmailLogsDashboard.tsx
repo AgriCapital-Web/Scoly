@@ -148,9 +148,14 @@ const EmailLogsDashboard = () => {
           </h2>
           <p className="text-sm text-muted-foreground">Logs transactionnels, campagnes &amp; quotas fournisseurs</p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} className="gap-2">
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Actualiser
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={retryAll} disabled={retrying === "__all__"} className="gap-2">
+            <Send size={14} className={retrying === "__all__" ? "animate-pulse" : ""} /> Relancer les échecs
+          </Button>
+          <Button variant="outline" size="sm" onClick={load} className="gap-2">
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Actualiser
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
