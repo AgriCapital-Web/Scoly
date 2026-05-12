@@ -304,42 +304,10 @@ export async function sendBrevoEmail(opts: BrevoEmail): Promise<SendResult> {
   };
 }
 
-/** Logo Scoly — URL hébergée stable (Lovable CDN) pour la majorité des clients mail. */
-export const SCOLY_LOGO_URL = "https://scoly-ci-play.lovable.app/logo-scoly-email.png";
-/** Fallback Base64 du logo (clients qui bloquent les images distantes type Outlook desktop). */
-export { SCOLY_LOGO_BASE64 } from "./logo-base64.ts";
-import { SCOLY_LOGO_BASE64 as _LOGO_B64 } from "./logo-base64.ts";
-
-/** Wrapper email branding Scoly — entête avec logo, footer responsive. */
-export function brandedEmail({
-  title,
-  bodyHtml,
-  ctaText,
-  ctaUrl,
-  footerExtra,
-}: {
-  title: string;
-  bodyHtml: string;
-  ctaText?: string;
-  ctaUrl?: string;
-  footerExtra?: string;
-}) {
-  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title></head>
-<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827;">
-  <div style="max-width:640px;margin:0 auto;padding:20px;">
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);padding:28px;border-radius:16px 16px 0 0;text-align:center;">
-      <img src="${SCOLY_LOGO_URL}" alt="Scoly" width="180" style="display:inline-block;max-width:180px;height:auto;background:#fff;padding:10px 18px;border-radius:12px;" onerror="this.onerror=null;this.src='${_LOGO_B64}';" />
-      <p style="margin:14px 0 0;color:rgba(255,255,255,0.7);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">Fournitures scolaires &amp; bureautiques</p>
-    </div>
-    <div style="background:#ffffff;padding:32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
-      <h1 style="margin:0 0 16px;font-size:22px;color:#0f172a;">${title}</h1>
-      <div style="font-size:15px;line-height:1.7;color:#374151;">${bodyHtml}</div>
-      ${ctaText && ctaUrl ? `<div style="text-align:center;margin:28px 0;"><a href="${ctaUrl}" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:700;">${ctaText}</a></div>` : ""}
-    </div>
-    <div style="background:#0f172a;padding:24px;border-radius:0 0 16px 16px;text-align:center;color:rgba(255,255,255,0.6);font-size:11px;">
-      ${footerExtra || ""}
-      <p style="margin:8px 0 0;">© ${new Date().getFullYear()} Scoly — Abidjan, Côte d'Ivoire — <a href="mailto:contact@scoly.ci" style="color:#60a5fa;text-decoration:none;">contact@scoly.ci</a></p>
-    </div>
-  </div>
-</body></html>`;
-}
+// 🎨 Branding email centralisé — voir _shared/email-branding.ts (source unique).
+export {
+  SCOLY_LOGO_URL,
+  SCOLY_LOGO_BASE64,
+  EMAIL_BRAND,
+  brandedEmail,
+} from "./email-branding.ts";
