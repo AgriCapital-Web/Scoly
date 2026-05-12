@@ -27,9 +27,9 @@
     --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
     
-    /* Backgrounds */
-    --background: 40 33% 98%;
-    --foreground: 220 30% 15%;
+    /* Backgrounds — léger voile bleuté pour faire ressortir la navy du logo */
+    --background: 220 33% 98%;
+    --foreground: 224 50% 14%;
     
     /* Cards & Surfaces */
     --card: 0 0% 100%;
@@ -54,10 +54,10 @@
     --radius: 0.75rem;
     
     /* Gradients — alignés sur le logo (navy + orange) */
-    --gradient-primary: linear-gradient(135deg, hsl(224, 70%, 22%) 0%, hsl(224, 60%, 40%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(24, 95%, 50%) 0%, hsl(24, 95%, 60%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(224, 70%, 20%) 0%, hsl(224, 60%, 32%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(40, 33%, 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(224 70% 22%) 0%, hsl(224 64% 33%) 60%, hsl(24 95% 53%) 140%);
+    --gradient-secondary: linear-gradient(135deg, hsl(24 95% 50%) 0%, hsl(24 95% 62%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(224 70% 18%) 0%, hsl(224 64% 30%) 55%, hsl(24 95% 53%) 130%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 33% 98%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 2px 8px -2px hsl(220 30% 15% / 0.08);
