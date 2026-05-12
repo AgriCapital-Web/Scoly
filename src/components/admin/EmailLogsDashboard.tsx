@@ -281,6 +281,7 @@ const EmailLogsDashboard = () => {
                     <th className="text-left p-3">Tentatives</th>
                     <th className="text-left p-3">Date</th>
                     <th className="text-left p-3">Erreur</th>
+                    <th className="text-left p-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -292,6 +293,13 @@ const EmailLogsDashboard = () => {
                       <td className="p-3">{l.attempt_count ?? 1}</td>
                       <td className="p-3 text-xs text-muted-foreground">{new Date(l.sent_at).toLocaleString("fr-FR")}</td>
                       <td className="p-3 text-xs text-destructive truncate max-w-[260px]" title={l.error_message || ""}>{l.error_message || ""}</td>
+                      <td className="p-3">
+                        {l.status === "failed" && (
+                          <Button size="sm" variant="outline" disabled={retrying === l.id} onClick={() => retryOne("campaign", l.id)} className="h-7 gap-1">
+                            <Send size={12} className={retrying === l.id ? "animate-pulse" : ""} /> Relancer
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
