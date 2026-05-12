@@ -71,6 +71,42 @@ const EmailLogsDashboard = () => {
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [days]);
 
+  const [retrying, setRetrying] = useState<string | null>(null);
+
+  const retryOne = async (source: "transactional" | "campaign", logId: string) => {
+    setRetrying(logId);
+    try {
+      const { data, error } = await supabase.functions.invoke("retry-failed-emails", {
+        body: { source, log_id: logId },
+      });
+      if (error) throw error;
+      const r = data as { succeeded?: number; failed?: number };
+      if (r?.succeeded) toast.success("Email relancé avec succès");
+      else toast.warning(`Échec — replanifié (${r?.failed || 0})`);
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur de relance");
+    } finally {
+      setRetrying(null);
+    }
+  };
+
+  const retryAll = async () => {
+    setRetrying("__all__");
+    try {
+      const { data, error } = await supabase.functions.invoke("retry-failed-emails", { body: { limit: 50 } });
+      if (error) throw error;
+      const r = data as any;
+      toast.success(`Lot relancé — ${r?.succeeded || 0} ok / ${r?.failed || 0} échec / ${r?.abandoned || 0} abandonné`);
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur de relance globale");
+    } finally {
+      setRetrying(null);
+    }
+  };
+
+
   const filteredTrans = useMemo(() => transactional.filter((l) => {
     if (filterStatus !== "all" && (l.status || "") !== filterStatus) return false;
     if (filterProvider !== "all" && (l.provider || "") !== filterProvider) return false;
