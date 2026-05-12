@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Mail, AlertTriangle, CheckCircle2, Clock, Filter } from "lucide-react";
+import { RefreshCw, Mail, AlertTriangle, CheckCircle2, Clock, Filter, Send } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 type EmailLog = {
   id: string;
@@ -70,6 +71,42 @@ const EmailLogsDashboard = () => {
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [days]);
 
+  const [retrying, setRetrying] = useState<string | null>(null);
+
+  const retryOne = async (source: "transactional" | "campaign", logId: string) => {
+    setRetrying(logId);
+    try {
+      const { data, error } = await supabase.functions.invoke("retry-failed-emails", {
+        body: { source, log_id: logId },
+      });
+      if (error) throw error;
+      const r = data as { succeeded?: number; failed?: number };
+      if (r?.succeeded) toast.success("Email relancé avec succès");
+      else toast.warning(`Échec — replanifié (${r?.failed || 0})`);
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur de relance");
+    } finally {
+      setRetrying(null);
+    }
+  };
+
+  const retryAll = async () => {
+    setRetrying("__all__");
+    try {
+      const { data, error } = await supabase.functions.invoke("retry-failed-emails", { body: { limit: 50 } });
+      if (error) throw error;
+      const r = data as any;
+      toast.success(`Lot relancé — ${r?.succeeded || 0} ok / ${r?.failed || 0} échec / ${r?.abandoned || 0} abandonné`);
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur de relance globale");
+    } finally {
+      setRetrying(null);
+    }
+  };
+
+
   const filteredTrans = useMemo(() => transactional.filter((l) => {
     if (filterStatus !== "all" && (l.status || "") !== filterStatus) return false;
     if (filterProvider !== "all" && (l.provider || "") !== filterProvider) return false;
@@ -111,9 +148,14 @@ const EmailLogsDashboard = () => {
           </h2>
           <p className="text-sm text-muted-foreground">Logs transactionnels, campagnes &amp; quotas fournisseurs</p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} className="gap-2">
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Actualiser
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={retryAll} disabled={retrying === "__all__"} className="gap-2">
+            <Send size={14} className={retrying === "__all__" ? "animate-pulse" : ""} /> Relancer les échecs
+          </Button>
+          <Button variant="outline" size="sm" onClick={load} className="gap-2">
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Actualiser
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -198,6 +240,7 @@ const EmailLogsDashboard = () => {
                     <th className="text-left p-3">Tentatives</th>
                     <th className="text-left p-3">Date</th>
                     <th className="text-left p-3">Erreur</th>
+                    <th className="text-left p-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -210,6 +253,13 @@ const EmailLogsDashboard = () => {
                       <td className="p-3">{l.attempt_count ?? 0}</td>
                       <td className="p-3 text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString("fr-FR")}</td>
                       <td className="p-3 text-xs text-destructive truncate max-w-[260px]" title={l.error_message || ""}>{l.error_message || ""}</td>
+                      <td className="p-3">
+                        {l.status === "failed" && (
+                          <Button size="sm" variant="outline" disabled={retrying === l.id} onClick={() => retryOne("transactional", l.id)} className="h-7 gap-1">
+                            <Send size={12} className={retrying === l.id ? "animate-pulse" : ""} /> Relancer
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -231,6 +281,7 @@ const EmailLogsDashboard = () => {
                     <th className="text-left p-3">Tentatives</th>
                     <th className="text-left p-3">Date</th>
                     <th className="text-left p-3">Erreur</th>
+                    <th className="text-left p-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -242,6 +293,13 @@ const EmailLogsDashboard = () => {
                       <td className="p-3">{l.attempt_count ?? 1}</td>
                       <td className="p-3 text-xs text-muted-foreground">{new Date(l.sent_at).toLocaleString("fr-FR")}</td>
                       <td className="p-3 text-xs text-destructive truncate max-w-[260px]" title={l.error_message || ""}>{l.error_message || ""}</td>
+                      <td className="p-3">
+                        {l.status === "failed" && (
+                          <Button size="sm" variant="outline" disabled={retrying === l.id} onClick={() => retryOne("campaign", l.id)} className="h-7 gap-1">
+                            <Send size={12} className={retrying === l.id ? "animate-pulse" : ""} /> Relancer
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

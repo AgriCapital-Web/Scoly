@@ -35,11 +35,27 @@ Deno.serve(async (req) => {
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
     const limit = Math.min(Number(body.limit) || 25, 100);
 
-    const { data: jobs, error } = await admin.rpc('get_failed_emails_for_retry', { _limit: limit });
-    if (error) throw error;
+    // 🎯 Mode "retry ciblé" depuis l'UI admin : on relance UN log précis.
+    let jobs: any[] = [];
+    if (body.log_id && body.source) {
+      const table = body.source === 'campaign' ? 'email_campaign_logs' : 'email_logs';
+      const { data: row, error: rowErr } = await admin.from(table).select('*').eq('id', body.log_id).maybeSingle();
+      if (rowErr) throw rowErr;
+      if (!row) return new Response(JSON.stringify({ error: 'log_not_found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      jobs = [{
+        source: body.source, log_id: row.id, campaign_id: (row as any).campaign_id ?? null,
+        recipient_email: row.recipient_email, email_type: (row as any).email_type ?? 'transactional',
+        email_category: (row as any).email_category ?? null, attempt_count: row.attempt_count ?? 0,
+        metadata: row.metadata ?? {}, dedupe_key: row.dedupe_key ?? null,
+      }];
+    } else {
+      const { data, error } = await admin.rpc('get_failed_emails_for_retry', { _limit: limit });
+      if (error) throw error;
+      jobs = (data as any[]) || [];
+    }
 
     let retried = 0, succeeded = 0, failed = 0, abandoned = 0;
-    for (const job of (jobs as any[]) || []) {
+    for (const job of jobs) {
       retried++;
       const meta = (job.metadata as Record<string, any>) || {};
       const subject = meta.subject || meta.campaign_subject || 'Notification Scoly';
