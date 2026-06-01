@@ -1477,6 +1477,7 @@ export type Database = {
           is_featured: boolean | null
           is_office_supply: boolean | null
           material: string | null
+          metadata: Json
           model: string | null
           name_de: string
           name_en: string
@@ -1515,6 +1516,7 @@ export type Database = {
           is_featured?: boolean | null
           is_office_supply?: boolean | null
           material?: string | null
+          metadata?: Json
           model?: string | null
           name_de: string
           name_en: string
@@ -1553,6 +1555,7 @@ export type Database = {
           is_featured?: boolean | null
           is_office_supply?: boolean | null
           material?: string | null
+          metadata?: Json
           model?: string | null
           name_de?: string
           name_en?: string
@@ -2450,12 +2453,14 @@ export type Database = {
           code: string | null
           created_at: string | null
           id: string | null
+          is_active: boolean | null
           is_verified: boolean | null
           logo_url: string | null
           name: string | null
           region: string | null
           student_count: number | null
           type: string | null
+          updated_at: string | null
           website: string | null
         }
         Insert: {
@@ -2464,12 +2469,14 @@ export type Database = {
           code?: string | null
           created_at?: string | null
           id?: string | null
+          is_active?: boolean | null
           is_verified?: boolean | null
           logo_url?: string | null
           name?: string | null
           region?: string | null
           student_count?: number | null
           type?: string | null
+          updated_at?: string | null
           website?: string | null
         }
         Update: {
@@ -2478,12 +2485,14 @@ export type Database = {
           code?: string | null
           created_at?: string | null
           id?: string | null
+          is_active?: boolean | null
           is_verified?: boolean | null
           logo_url?: string | null
           name?: string | null
           region?: string | null
           student_count?: number | null
           type?: string | null
+          updated_at?: string | null
           website?: string | null
         }
         Relationships: []
