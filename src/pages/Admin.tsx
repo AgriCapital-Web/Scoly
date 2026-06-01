@@ -70,6 +70,7 @@ import EmailMarketing from "@/components/admin/EmailMarketing";
 import EmailLogsDashboard from "@/components/admin/EmailLogsDashboard";
 import CampaignAnalyticsDashboard from "@/components/admin/CampaignAnalyticsDashboard";
 import ProviderMonitoring from "@/components/admin/ProviderMonitoring";
+import SmartKitComposer from "@/components/admin/SmartKitComposer";
 
 import { Share2 } from "lucide-react";
 
@@ -103,6 +104,7 @@ type TabType =
   | "resources"
   | "referrals"
   | "flash_deals"
+  | "smart_kits"
   | "education_ai"
   | "email_marketing"
   | "email_logs"
@@ -149,39 +151,70 @@ const Admin = () => {
     setLoading(false);
   };
 
-  const menuItems = [
-    { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
-    { id: "ai_manager", label: "🤖 Module IA", icon: Brain },
-    { id: "stats", label: "Statistiques", icon: BarChart3 },
-    { id: "sharestats", label: "Partages & Analytics", icon: Share2 },
-    { id: "products", label: "Produits", icon: Package },
-    { id: "categories", label: "Catégories", icon: FolderTree },
-    { id: "orders", label: "Commandes", icon: ShoppingBag },
-    { id: "payments", label: "Paiements", icon: DollarSign },
-    { id: "deliveries", label: "Livraisons", icon: Truck },
-    { id: "users", label: "Utilisateurs", icon: Users },
-    { id: "vendors", label: "Vendeurs", icon: Store },
-    { id: "commissions", label: "Commissions", icon: DollarSign },
-    { id: "loyalty", label: "Fidélité", icon: Gift },
-    { id: "promotions_mgmt", label: "Promotions", icon: Tag },
-    { id: "flash_deals", label: "Ventes Flash", icon: Zap },
-    { id: "social_media", label: "Réseaux Sociaux", icon: Share2 },
-    { id: "email_marketing", label: "📧 Email Marketing", icon: Bell },
-    { id: "email_logs", label: "📬 Journaux Email", icon: Bell },
-    { id: "email_analytics", label: "📊 Analytics Campagnes", icon: BarChart3 },
-    { id: "email_monitoring", label: "🛰️ Monitoring Fournisseurs", icon: BarChart3 },
-    { id: "schools", label: "Écoles", icon: GraduationCap },
-    { id: "resources", label: "Ressources Édu", icon: BookOpen },
-    { id: "education_ai", label: "🧠 IA Éducation", icon: Brain },
-    { id: "referrals", label: "Parrainages", icon: UserPlus },
-    { id: "authors", label: "Auteurs", icon: Users },
-    { id: "review", label: "Validation", icon: Eye },
-    { id: "articles", label: "Actualités", icon: FileText },
-    { id: "promotions", label: "Coupons", icon: Tag },
-    { id: "advertisements", label: "Publicités", icon: Bell },
-    { id: "faq", label: "FAQ", icon: HelpCircle },
-    { id: "documentation", label: "Documentation", icon: FileText },
-    { id: "settings", label: "Paramètres", icon: Settings },
+  const menuSections = [
+    {
+      title: "Pilotage",
+      items: [
+        { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+        { id: "stats", label: "Statistiques", icon: BarChart3 },
+        { id: "sharestats", label: "Partages & Analytics", icon: Share2 },
+      ],
+    },
+    {
+      title: "Catalogue",
+      items: [
+        { id: "products", label: "Produits", icon: Package },
+        { id: "categories", label: "Catégories", icon: FolderTree },
+        { id: "smart_kits", label: "Compositeur kits", icon: Package },
+      ],
+    },
+    {
+      title: "Ventes",
+      items: [
+        { id: "orders", label: "Commandes", icon: ShoppingBag },
+        { id: "payments", label: "Paiements", icon: DollarSign },
+        { id: "deliveries", label: "Livraisons", icon: Truck },
+        { id: "promotions_mgmt", label: "Promotions", icon: Tag },
+        { id: "flash_deals", label: "Ventes Flash", icon: Zap },
+        { id: "promotions", label: "Coupons", icon: Tag },
+        { id: "referrals", label: "Parrainages", icon: UserPlus },
+      ],
+    },
+    {
+      title: "Marketing",
+      items: [
+        { id: "social_media", label: "Réseaux Sociaux", icon: Share2 },
+        { id: "email_marketing", label: "Email Marketing", icon: Bell },
+        { id: "email_logs", label: "Journaux Email", icon: Bell },
+        { id: "email_analytics", label: "Analytics Campagnes", icon: BarChart3 },
+        { id: "email_monitoring", label: "Monitoring Fournisseurs", icon: BarChart3 },
+      ],
+    },
+    {
+      title: "Contenus & IA",
+      items: [
+        { id: "ai_manager", label: "Module IA", icon: Brain },
+        { id: "education_ai", label: "IA Éducation", icon: Brain },
+        { id: "schools", label: "Écoles", icon: GraduationCap },
+        { id: "resources", label: "Ressources Édu", icon: BookOpen },
+        { id: "authors", label: "Auteurs", icon: Users },
+        { id: "review", label: "Validation", icon: Eye },
+        { id: "articles", label: "Actualités", icon: FileText },
+        { id: "advertisements", label: "Publicités", icon: Bell },
+        { id: "faq", label: "FAQ", icon: HelpCircle },
+        { id: "documentation", label: "Documentation", icon: FileText },
+      ],
+    },
+    {
+      title: "Équipe & réglages",
+      items: [
+        { id: "users", label: "Utilisateurs", icon: Users },
+        { id: "vendors", label: "Vendeurs", icon: Store },
+        { id: "commissions", label: "Commissions", icon: DollarSign },
+        { id: "loyalty", label: "Fidélité", icon: Gift },
+        { id: "settings", label: "Paramètres", icon: Settings },
+      ],
+    },
   ];
 
   const handleTabChange = (tab: TabType) => {
