@@ -1477,6 +1477,7 @@ export type Database = {
           is_featured: boolean | null
           is_office_supply: boolean | null
           material: string | null
+          metadata: Json
           model: string | null
           name_de: string
           name_en: string
@@ -1515,6 +1516,7 @@ export type Database = {
           is_featured?: boolean | null
           is_office_supply?: boolean | null
           material?: string | null
+          metadata?: Json
           model?: string | null
           name_de: string
           name_en: string
@@ -1553,6 +1555,7 @@ export type Database = {
           is_featured?: boolean | null
           is_office_supply?: boolean | null
           material?: string | null
+          metadata?: Json
           model?: string | null
           name_de?: string
           name_en?: string
@@ -2445,7 +2448,6 @@ export type Database = {
       }
       schools_public: {
         Row: {
-          address: string | null
           city: string | null
           code: string | null
           created_at: string | null
@@ -2459,7 +2461,6 @@ export type Database = {
           website: string | null
         }
         Insert: {
-          address?: string | null
           city?: string | null
           code?: string | null
           created_at?: string | null
@@ -2473,7 +2474,6 @@ export type Database = {
           website?: string | null
         }
         Update: {
-          address?: string | null
           city?: string | null
           code?: string | null
           created_at?: string | null
