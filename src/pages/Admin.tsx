@@ -263,20 +263,29 @@ const Admin = () => {
           <div className="p-6">
             <h2 className="text-xl font-display font-bold text-foreground">Administration</h2>
           </div>
-          <nav className="px-4 space-y-1 pb-8">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleTabChange(item.id as TabType)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm ${
-                  activeTab === item.id
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <item.icon size={18} />
-                {item.label}
-              </button>
+          <nav className="px-4 space-y-4 pb-8">
+            {menuSections.map((section) => (
+              <div key={section.title}>
+                <h3 className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {section.title}
+                </h3>
+                <div className="space-y-1">
+                  {section.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleTabChange(item.id as TabType)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
+                        activeTab === item.id
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <item.icon size={18} />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
         </aside>
@@ -287,20 +296,29 @@ const Admin = () => {
             <SheetHeader className="p-6 border-b border-border">
               <SheetTitle>Administration</SheetTitle>
             </SheetHeader>
-            <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-100px)]">
-              {menuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleTabChange(item.id as TabType)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm ${
-                    activeTab === item.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </button>
+            <nav className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-100px)]">
+              {menuSections.map((section) => (
+                <div key={section.title}>
+                  <h3 className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {section.title}
+                  </h3>
+                  <div className="space-y-1">
+                    {section.items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleTabChange(item.id as TabType)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
+                          activeTab === item.id
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <item.icon size={18} />
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </nav>
           </SheetContent>
